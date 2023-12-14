@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const logSchema = new mongoose.Schema({
     title: {type: String, required: true},
     entry: {type: String, required: true},
-    readyToEat: Boolean
+    shipIsBroken: Boolean
 })
 
 const Log = mongoose.model('log', logSchema);

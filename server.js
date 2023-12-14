@@ -11,6 +11,9 @@ const jsxViewEngine = require('jsx-view-engine');
 const Log= require('./models/log')
 
 // Global configuration
+const methodOverride = require('method-override');
+
+app.use(methodOverride('_method'));
 const mongoURI = process.env.MONGO_URI;
 const db = mongoose.connection;
 
@@ -61,6 +64,39 @@ app.get('/logs/new', (req, res) => {
     res.render('New');
 });
 
+//Delete
+app.delete('/logs/:id', async (req, res) => {
+    // res.send('deleting...');
+    try {
+        const deletedLog = await Log.findByIdAndDelete(req.params.id);
+        console.log(deletedLog);
+        res.status(200).redirect('/logs');
+    } catch (err) {
+        res.status(400).send(err);
+    }
+})
+
+//update
+
+app.put('/logs/:id', async (req, res) => {
+    if (req.body.shipIsBroken === 'on') {
+        req.body.shipIsBroken = true;
+    } else {
+        req.body.shipIsBroken = false;
+    }
+    console.log(req.body);
+    try {
+        const updatedLog = await Log.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true },
+        );
+        console.log(updatedLog);
+        res.status(200).redirect(`/logs/${req.params.id}`);
+    } catch (err) {
+        res.status(400).send(err);
+    }
+ })
 
 // C - CREATE - update our data store
 app.post('/logs', async (req, res) => {
@@ -83,6 +119,16 @@ app.post('/logs', async (req, res) => {
     
 })
 
+app.get('/logs/:id/edit', async (req, res) => {
+    try {
+        const foundLog = await Log.findById(req.params.id);
+        console.log('foundLog');
+        console.log(foundLog)
+        res.status(200).render('Edit', {log: foundLog});
+    } catch (err) {
+        res.status(400).send(err);
+    }
+})
 // S - SHOW - show route displays details of an individual fruit
 app.get('/logs/:id', async (req, res) => {
     // res.send(fruits[req.params.indexOfFruitsArray]);
